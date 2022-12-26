@@ -42,7 +42,7 @@ provision_vm() {
         --ip-forwarding true
     az vm create -n $VMNAME -g $RG \
         --size $VMSIZE \
-        --image Canonical:0001-com-ubuntu-server-jammy:22_04-lts:latest \
+        --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \
         --nics $VMNAME \
         --custom-data cloud-init.txt \
         --ssh-key-values ~/.ssh/id_rsa.pub
@@ -58,13 +58,13 @@ TGTPIP=`az vm show -g $RG -n $TGTNAME -d --query publicIps -otsv`
 echo "public IP for target: $TGTPIP"
 
 # Install CNI
-ssh ubuntu@$TGTPIP 'wget https://raw.githubusercontent.com/Azure/azure-container-networking/master/scripts/install-cni-plugin.sh && sudo bash install-cni-plugin.sh v1.4.39 v1.0.1'
+# ssh ubuntu@$TGTPIP 'wget https://raw.githubusercontent.com/Azure/azure-container-networking/master/scripts/install-cni-plugin.sh && sudo bash install-cni-plugin.sh v1.4.39 v1.0.1'
 rsync -av lxd-*.sh ubuntu@$TGTPIP:/home/ubuntu/
 
-# create a testing vm where we access containers
-provision_vm $CLIENTNAME
-CLIENTIP=`az vm show -g $RG -n $CLIENTNAME -d --query publicIps -otsv`
-echo "public IP for client: $CLIENTIP"
+# # create a testing vm where we access containers
+# provision_vm $CLIENTNAME
+# CLIENTIP=`az vm show -g $RG -n $CLIENTNAME -d --query publicIps -otsv`
+# echo "public IP for client: $CLIENTIP"
 
 # reboot tgt
 az vm restart -g $RG -n $TGTNAME

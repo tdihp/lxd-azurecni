@@ -5,3 +5,19 @@ datasource:
 package_upgrade: true
 packages:
   - jq
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+runcmd:
+  - mkdir -p /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  - |
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - chmod a+r /etc/apt/keyrings/docker.gpg
+  - apt-get update -y
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  - wget https://raw.githubusercontent.com/Azure/azure-container-networking/master/scripts/install-cni-plugin.sh -O /home/ubuntu/install-cni-plugin.sh
+  - bash /home/ubuntu/install-cni-plugin.sh v1.4.39 v1.0.1
