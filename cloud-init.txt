@@ -1,0 +1,7 @@
+#cloud-config
+datasource:
+  Azure:
+    apply_network_config: False
+package_upgrade: true
+packages:
+  - jq
