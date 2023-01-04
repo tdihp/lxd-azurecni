@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ $# -ne 1 ]; then
+	echo "usage: lxd-delete.sh <name>"
+	exit 1
+fi
+
 set -ex
 set -o pipefail
 cname=$1

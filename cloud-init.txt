@@ -1,4 +1,8 @@
 #cloud-config
+# Uncomment the commented blocks for installing Docker. Noticing that we need to
+# add iptables rule by `iptables -t filter -P FORWARD ACCEPT` to allow
+# forwarding
+# NOTE: this seems to work for 20.04 but not for 22.04
 datasource:
   Azure:
     apply_network_config: False
@@ -7,17 +11,22 @@ packages:
   - jq
   - ca-certificates
   - curl
-  - gnupg
-  - lsb-release
+  # - gnupg
+  # - lsb-release
 runcmd:
-  - mkdir -p /etc/apt/keyrings
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  - |
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  - chmod a+r /etc/apt/keyrings/docker.gpg
-  - apt-get update -y
-  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+#   - mkdir -p /etc/apt/keyrings
+#   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+#   - |
+#     echo \
+#       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+#       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+#   - chmod a+r /etc/apt/keyrings/docker.gpg
+  # - apt-get update -y
+  # - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
   - wget https://raw.githubusercontent.com/Azure/azure-container-networking/master/scripts/install-cni-plugin.sh -O /home/ubuntu/install-cni-plugin.sh
   - bash /home/ubuntu/install-cni-plugin.sh v1.4.39 v1.0.1
+write_files:
+- content: |
+    net.ipv4.ip_forward=1
+  path: /etc/sysctl.d/90-lxd-azurecni.conf
+  permissions: '0644'

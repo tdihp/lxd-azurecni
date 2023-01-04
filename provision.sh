@@ -60,13 +60,12 @@ echo "public IP for target: $TGTPIP"
 # Install CNI
 # ssh ubuntu@$TGTPIP 'wget https://raw.githubusercontent.com/Azure/azure-container-networking/master/scripts/install-cni-plugin.sh && sudo bash install-cni-plugin.sh v1.4.39 v1.0.1'
 rsync -av lxd-*.sh ubuntu@$TGTPIP:/home/ubuntu/
-# modifying /etc/cni/net.d/ requires root permission
-rsync --rsync-path 'sudo -S rsync' -av 10-azure.conflist ubuntu@$TGTPIP:/etc/cni/net.d/
+cat lxd-init.yaml | ssh ubuntu@$TGTPIP sudo lxd init --preseed
 
 # # create a testing vm where we access containers
-# provision_vm $CLIENTNAME
-# CLIENTIP=`az vm show -g $RG -n $CLIENTNAME -d --query publicIps -otsv`
-# echo "public IP for client: $CLIENTIP"
+provision_vm $CLIENTNAME
+CLIENTIP=`az vm show -g $RG -n $CLIENTNAME -d --query publicIps -otsv`
+echo "public IP for client: $CLIENTIP"
 
 # reboot tgt
 az vm restart -g $RG -n $TGTNAME

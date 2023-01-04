@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ $# -ne 3 ]; then
+	echo "usage: lxd-create.sh <prifile> <image> <name>"
+	exit 1
+fi
+
 set -ex
 set -o pipefail
 # we need a profile that doesn't have network configured at all, and we can only
